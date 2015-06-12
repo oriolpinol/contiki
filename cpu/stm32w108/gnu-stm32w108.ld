@@ -3,7 +3,7 @@
 These are used by the startup in order to allocate stacks for the different modes.
 */
 
-__Stack_Size = 0x500 ;
+__Stack_Size = 0xA00 ;
 
 PROVIDE ( _Stack_Size = __Stack_Size ) ;
 
@@ -126,6 +126,7 @@ SECTIONS
     PROVIDE ( _end = _ebss );
        
     __exidx_start = .;
+        .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } /* Added, otherwise compiler complains */
     __exidx_end = .;
 
     /* remove the debugging information from the standard libraries */
