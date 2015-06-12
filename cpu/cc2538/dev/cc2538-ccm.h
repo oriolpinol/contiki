@@ -45,8 +45,8 @@
  * \file
  * Header file for the cc2538 AES-CCM driver
  */
-#ifndef CCM_H_
-#define CCM_H_
+#ifndef CC2538_CCM_H_
+#define CC2538_CCM_H_
 
 #include "contiki.h"
 #include "dev/aes.h"
@@ -57,7 +57,7 @@
 /** \name AES-CCM driver return codes
  * @{
  */
-#define CCM_AUTHENTICATION_FAILED     7
+#define CC2538_CCM_AUTHENTICATION_FAILED     7
 /** @} */
 /*---------------------------------------------------------------------------*/
 /** \name AES-CCM functions
@@ -76,17 +76,17 @@
  * \param process Process to be polled upon completion of the operation, or \c NULL
  * \return \c CRYPTO_SUCCESS if successful, or CRYPTO/AES/CCM error code
  */
-uint8_t ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area,
-                               const void *nonce, const void *adata,
-                               uint16_t adata_len, void *pdata,
-                               uint16_t pdata_len, uint8_t mic_len,
-                               struct process *process);
+uint8_t cc2538_ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area,
+                                      const void *nonce, const void *adata,
+                                      uint16_t adata_len, void *pdata,
+                                      uint16_t pdata_len, uint8_t mic_len,
+                                      struct process *process);
 
 /** \brief Checks the status of the CCM authentication and encryption operation
  * \retval false Result not yet available, and no error occurred
  * \retval true Result available, or error occurred
  */
-uint8_t ccm_auth_encrypt_check_status(void);
+uint8_t cc2538_ccm_auth_encrypt_check_status(void);
 
 /** \brief Gets the result of the CCM authentication and encryption operation
  * \param mic Pointer to authentication field, or \c NULL
@@ -94,7 +94,7 @@ uint8_t ccm_auth_encrypt_check_status(void);
  * \return \c CRYPTO_SUCCESS if successful, or CRYPTO/AES/CCM error code
  * \note This function must be called only after \c ccm_auth_encrypt_start().
  */
-uint8_t ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len);
+uint8_t cc2538_ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len);
 
 /** \brief Starts the CCM authentication checking and decryption operation
  * \param len_len Number of octets in length field (2, 4 or 8)
@@ -108,17 +108,17 @@ uint8_t ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len);
  * \param process Process to be polled upon completion of the operation, or \c NULL
  * \return \c CRYPTO_SUCCESS if successful, or CRYPTO/AES/CCM error code
  */
-uint8_t ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area,
-                               const void *nonce, const void *adata,
-                               uint16_t adata_len, void *cdata,
-                               uint16_t cdata_len, uint8_t mic_len,
-                               struct process *process);
+uint8_t cc2538_ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area,
+                                      const void *nonce, const void *adata,
+                                      uint16_t adata_len, void *cdata,
+                                      uint16_t cdata_len, uint8_t mic_len,
+                                      struct process *process);
 
 /** \brief Checks the status of the CCM authentication checking and decryption operation
  * \retval false Result not yet available, and no error occurred
  * \retval true Result available, or error occurred
  */
-uint8_t ccm_auth_decrypt_check_status(void);
+uint8_t cc2538_ccm_auth_decrypt_check_status(void);
 
 /** \brief Gets the result of the CCM authentication checking and decryption operation
  * \param cdata Pointer to encrypted and authenticated message
@@ -128,12 +128,12 @@ uint8_t ccm_auth_decrypt_check_status(void);
  * \return \c CRYPTO_SUCCESS if successful, or CRYPTO/AES/CCM error code
  * \note This function must be called only after \c ccm_auth_decrypt_start().
  */
-uint8_t ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
-                                    void *mic, uint8_t mic_len);
+uint8_t cc2538_ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
+                                           void *mic, uint8_t mic_len);
 
 /** @} */
 
-#endif /* CCM_H_ */
+#endif /* CC2538_CCM_H_ */
 
 /**
  * @}

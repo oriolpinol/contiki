@@ -40,19 +40,19 @@
  * \file
  * Header file for the cc2538 AES/SHA cryptoprocessor driver
  */
-#ifndef CRYPTO_H_
-#define CRYPTO_H_
+#ifndef CC2538_CRYPTO_H_
+#define CC2538_CRYPTO_H_
 
 #include "contiki.h"
 /*---------------------------------------------------------------------------*/
 /** \name Crypto drivers return codes
  * @{
  */
-#define CRYPTO_SUCCESS                0
-#define CRYPTO_INVALID_PARAM          1
-#define CRYPTO_NULL_ERROR             2
-#define CRYPTO_RESOURCE_IN_USE        3
-#define CRYPTO_DMA_BUS_ERROR          4
+#define CC2538_CRYPTO_SUCCESS                0
+#define CC2538_CRYPTO_INVALID_PARAM          1
+#define CC2538_CRYPTO_NULL_ERROR             2
+#define CC2538_CRYPTO_RESOURCE_IN_USE        3
+#define CC2538_CRYPTO_DMA_BUS_ERROR          4
 /** @} */
 /*---------------------------------------------------------------------------*/
 /** \name Crypto functions
@@ -61,27 +61,27 @@
 
 /** \brief Enables and resets the AES/SHA cryptoprocessor
  */
-void crypto_init(void);
+void cc2538_crypto_init(void);
 
 /** \brief Enables the AES/SHA cryptoprocessor
  */
-void crypto_enable(void);
+void cc2538_crypto_enable(void);
 
 /** \brief Disables the AES/SHA cryptoprocessor
  * \note Call this function to save power when the cryptoprocessor is unused.
  */
-void crypto_disable(void);
+void cc2538_crypto_disable(void);
 
 /** \brief Registers a process to be notified of the completion of a crypto
  * operation
  * \param p Process to be polled upon IRQ
  * \note This function is only supposed to be called by the crypto drivers.
  */
-void crypto_register_process_notification(struct process *p);
+void cc2538_crypto_register_process_notification(struct process *p);
 
 /** @} */
 
-#endif /* CRYPTO_H_ */
+#endif /* CC2538_CRYPTO_H_ */
 
 /**
  * @}

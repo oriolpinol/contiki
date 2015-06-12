@@ -39,7 +39,7 @@
 #include "sys/energest.h"
 #include "dev/sys-ctrl.h"
 #include "dev/nvic.h"
-#include "dev/crypto.h"
+#include "dev/cc2538-crypto.h"
 #include "dev/aes.h"
 #include "reg.h"
 #include "lpm.h"
@@ -57,7 +57,7 @@ static volatile struct process *notification_process = NULL;
  *        to be called.
  */
 void
-crypto_isr(void)
+cc2538_crypto_isr(void)
 {
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
 
@@ -79,13 +79,13 @@ permit_pm1(void)
 }
 /*---------------------------------------------------------------------------*/
 void
-crypto_init(void)
+cc2538_crypto_init(void)
 {
   volatile int i;
 
   lpm_register_peripheral(permit_pm1);
 
-  crypto_enable();
+  cc2538_crypto_enable();
 
   /* Reset the AES/SHA cryptoprocessor */
   REG(SYS_CTRL_SRSEC) |= SYS_CTRL_SRSEC_AES;
@@ -94,7 +94,7 @@ crypto_init(void)
 }
 /*---------------------------------------------------------------------------*/
 void
-crypto_enable(void)
+cc2538_crypto_enable(void)
 {
   /* Enable the clock for the AES/SHA cryptoprocessor */
   REG(SYS_CTRL_RCGCSEC) |= SYS_CTRL_RCGCSEC_AES;
@@ -103,7 +103,7 @@ crypto_enable(void)
 }
 /*---------------------------------------------------------------------------*/
 void
-crypto_disable(void)
+cc2538_crypto_disable(void)
 {
   /* Gate the clock for the AES/SHA cryptoprocessor */
   REG(SYS_CTRL_RCGCSEC) &= ~SYS_CTRL_RCGCSEC_AES;
@@ -112,7 +112,7 @@ crypto_disable(void)
 }
 /*---------------------------------------------------------------------------*/
 void
-crypto_register_process_notification(struct process *p)
+cc2538_crypto_register_process_notification(struct process *p)
 {
   notification_process = p;
 }

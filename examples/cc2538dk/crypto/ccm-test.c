@@ -52,7 +52,7 @@
 #include "contiki.h"
 #include "sys/rtimer.h"
 #include "dev/rom-util.h"
-#include "dev/ccm.h"
+#include "dev/cc2538-ccm.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -595,7 +595,7 @@ PROCESS_THREAD(ccm_test_process, ev, data)
 
   puts("-----------------------------------------\n"
        "Initializing cryptoprocessor...");
-  crypto_init();
+  cc2538_crypto_init();
 
   for(i = 0; i < sizeof(vectors) / sizeof(vectors[0]); i++) {
     if(key_size_index != vectors[i].key_size_index) {
@@ -609,7 +609,7 @@ PROCESS_THREAD(ccm_test_process, ev, data)
       printf("aes_load_keys(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
       PROCESS_PAUSE();
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         break;
       }
     }
@@ -624,22 +624,25 @@ PROCESS_THREAD(ccm_test_process, ev, data)
 
     time = RTIMER_NOW();
     if(vectors[i].encrypt) {
-      ret = ccm_auth_encrypt_start(vectors[i].len_len, vectors[i].key_area,
-                                   vectors[i].nonce, vectors[i].adata,
-                                   vectors[i].adata_len, vectors[i].mdata,
-                                   vectors[i].mdata_len, vectors[i].mic_len,
-                                   &ccm_test_process);
+      ret = cc2538_ccm_auth_encrypt_start(vectors[i].len_len,
+                                          vectors[i].key_area,
+                                          vectors[i].nonce, vectors[i].adata,
+                                          vectors[i].adata_len,
+                                          vectors[i].mdata,
+                                          vectors[i].mdata_len,
+                                          vectors[i].mic_len,
+                                          &ccm_test_process);
       time2 = RTIMER_NOW();
       time = time2 - time;
       total_time = time;
-      if(ret == CRYPTO_SUCCESS) {
-        PROCESS_WAIT_EVENT_UNTIL(ccm_auth_encrypt_check_status());
+      if(ret == CC2538_CRYPTO_SUCCESS) {
+        PROCESS_WAIT_EVENT_UNTIL(cc2538_ccm_auth_encrypt_check_status());
         time2 = RTIMER_NOW() - time2;
         total_time += time2;
       }
       printf("ccm_auth_encrypt_start(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         PROCESS_PAUSE();
         continue;
       }
@@ -647,13 +650,14 @@ PROCESS_THREAD(ccm_test_process, ev, data)
              (uint32_t)((uint64_t)time2 * 1000000 / RTIMER_SECOND));
 
       time = RTIMER_NOW();
-      ret = ccm_auth_encrypt_get_result(vectors[i].mic, vectors[i].mic_len);
+      ret = cc2538_ccm_auth_encrypt_get_result(vectors[i].mic,
+                                               vectors[i].mic_len);
       time = RTIMER_NOW() - time;
       total_time += time;
       printf("ccm_auth_encrypt_get_result(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
       PROCESS_PAUSE();
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         continue;
       }
 
@@ -672,22 +676,26 @@ PROCESS_THREAD(ccm_test_process, ev, data)
         puts("MIC OK");
       }
     } else {
-      ret = ccm_auth_decrypt_start(vectors[i].len_len, vectors[i].key_area,
-                                   vectors[i].nonce, vectors[i].adata,
-                                   vectors[i].adata_len, vectors[i].mdata,
-                                   vectors[i].mdata_len, vectors[i].mic_len,
-                                   &ccm_test_process);
+      ret = cc2538_ccm_auth_decrypt_start(vectors[i].len_len,
+                                          vectors[i].key_area,
+                                          vectors[i].nonce,
+                                          vectors[i].adata,
+                                          vectors[i].adata_len,
+                                          vectors[i].mdata,
+                                          vectors[i].mdata_len,
+                                          vectors[i].mic_len,
+                                          &ccm_test_process);
       time2 = RTIMER_NOW();
       time = time2 - time;
       total_time = time;
-      if(ret == CRYPTO_SUCCESS) {
-        PROCESS_WAIT_EVENT_UNTIL(ccm_auth_decrypt_check_status());
+      if(ret == CC2538_CRYPTO_SUCCESS) {
+        PROCESS_WAIT_EVENT_UNTIL(cc2538_ccm_auth_decrypt_check_status());
         time2 = RTIMER_NOW() - time2;
         total_time += time2;
       }
       printf("ccm_auth_decrypt_start(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         PROCESS_PAUSE();
         continue;
       }
@@ -695,14 +703,16 @@ PROCESS_THREAD(ccm_test_process, ev, data)
              (uint32_t)((uint64_t)time2 * 1000000 / RTIMER_SECOND));
 
       time = RTIMER_NOW();
-      ret = ccm_auth_decrypt_get_result(vectors[i].mdata, vectors[i].mdata_len,
-                                        vectors[i].mic, vectors[i].mic_len);
+      ret = cc2538_ccm_auth_decrypt_get_result(vectors[i].mdata,
+                                               vectors[i].mdata_len,
+                                               vectors[i].mic,
+                                               vectors[i].mic_len);
       time = RTIMER_NOW() - time;
       total_time += time;
       printf("ccm_auth_decrypt_get_result(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
       PROCESS_PAUSE();
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         continue;
       }
 
@@ -720,7 +730,7 @@ PROCESS_THREAD(ccm_test_process, ev, data)
 
   puts("-----------------------------------------\n"
        "Disabling cryptoprocessor...");
-  crypto_disable();
+  cc2538_crypto_disable();
 
   puts("Done!");
 

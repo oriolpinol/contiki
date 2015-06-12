@@ -57,7 +57,7 @@ aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
   int i;
 
   if(REG(AES_CTRL_ALG_SEL) != 0x00000000) {
-    return CRYPTO_RESOURCE_IN_USE;
+    return CC2538_CRYPTO_RESOURCE_IN_USE;
   }
 
   /* 192-bit keys must be padded to 256 bits */
@@ -125,7 +125,7 @@ aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
     REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_DMA_BUS_ERR;
     /* Disable master control / DMA clock */
     REG(AES_CTRL_ALG_SEL) = 0x00000000;
-    return CRYPTO_DMA_BUS_ERROR;
+    return CC2538_CRYPTO_DMA_BUS_ERROR;
   }
   if(REG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_WR_ERR) {
     REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_KEY_ST_WR_ERR;
@@ -146,7 +146,7 @@ aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
     return AES_KEYSTORE_WRITE_ERROR;
   }
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 
 /** @} */

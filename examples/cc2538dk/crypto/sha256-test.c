@@ -190,7 +190,7 @@ PROCESS_THREAD(sha256_test_process, ev, data)
 
   puts("-----------------------------------------\n"
        "Initializing cryptoprocessor...");
-  crypto_init();
+  cc2538_crypto_init();
 
   for(i = 0; i < sizeof(vectors) / sizeof(vectors[0]); i++) {
     printf("-----------------------------------------\n"
@@ -203,7 +203,7 @@ PROCESS_THREAD(sha256_test_process, ev, data)
     printf("sha256_init(): %s, %lu us\n", str_res[ret],
            (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
     PROCESS_PAUSE();
-    if(ret != CRYPTO_SUCCESS) {
+    if(ret != CC2538_CRYPTO_SUCCESS) {
       continue;
     }
 
@@ -218,11 +218,11 @@ PROCESS_THREAD(sha256_test_process, ev, data)
       printf("sha256_process(): %s, %lu us\n", str_res[ret],
              (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
       PROCESS_PAUSE();
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         break;
       }
     }
-    if(ret != CRYPTO_SUCCESS) {
+    if(ret != CC2538_CRYPTO_SUCCESS) {
       continue;
     }
 
@@ -233,7 +233,7 @@ PROCESS_THREAD(sha256_test_process, ev, data)
     printf("sha256_done(): %s, %lu us\n", str_res[ret],
            (uint32_t)((uint64_t)time * 1000000 / RTIMER_SECOND));
     PROCESS_PAUSE();
-    if(ret != CRYPTO_SUCCESS) {
+    if(ret != CC2538_CRYPTO_SUCCESS) {
       continue;
     }
 
@@ -248,7 +248,7 @@ PROCESS_THREAD(sha256_test_process, ev, data)
 
   puts("-----------------------------------------\n"
        "Disabling cryptoprocessor...");
-  crypto_disable();
+  cc2538_crypto_disable();
 
   puts("Done!");
 

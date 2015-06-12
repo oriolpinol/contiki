@@ -44,22 +44,23 @@
 #include "sys/cc.h"
 #include "dev/rom-util.h"
 #include "dev/nvic.h"
-#include "dev/ccm.h"
+#include "dev/cc2538-ccm.h"
 #include "reg.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
-                       const void *adata, uint16_t adata_len, void *pdata,
-                       uint16_t pdata_len, uint8_t mic_len,
-                       struct process *process)
+cc2538_ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area,
+                              const void *nonce,
+                              const void *adata, uint16_t adata_len,
+                              void *pdata, uint16_t pdata_len, uint8_t mic_len,
+                              struct process *process)
 {
   uint32_t iv[4];
 
   if(REG(AES_CTRL_ALG_SEL) != 0x00000000) {
-    return CRYPTO_RESOURCE_IN_USE;
+    return CC2538_CRYPTO_RESOURCE_IN_USE;
   }
 
   /* Workaround for AES registers not retained after PM2 */
@@ -134,7 +135,7 @@ ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
       REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_DMA_BUS_ERR;
       /* Disable the master control / DMA clock */
       REG(AES_CTRL_ALG_SEL) = 0x00000000;
-      return CRYPTO_DMA_BUS_ERROR;
+      return CC2538_CRYPTO_DMA_BUS_ERROR;
     }
   }
 
@@ -143,7 +144,7 @@ ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
                           AES_CTRL_INT_CLR_RESULT_AV;
 
   if(process != NULL) {
-    crypto_register_process_notification(process);
+    cc2538_crypto_register_process_notification(process);
     nvic_interrupt_unpend(NVIC_INT_AES);
     nvic_interrupt_enable(NVIC_INT_AES);
   }
@@ -168,11 +169,11 @@ ccm_auth_encrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
     REG(AES_DMAC_CH1_DMALENGTH) = pdata_len;
   }
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_encrypt_check_status(void)
+cc2538_ccm_auth_encrypt_check_status(void)
 {
   return !!(REG(AES_CTRL_INT_STAT) &
             (AES_CTRL_INT_STAT_DMA_BUS_ERR | AES_CTRL_INT_STAT_KEY_ST_WR_ERR |
@@ -180,7 +181,7 @@ ccm_auth_encrypt_check_status(void)
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len)
+cc2538_ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len)
 {
   uint32_t aes_ctrl_int_stat;
   uint32_t tag[4];
@@ -192,13 +193,13 @@ ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len)
                           AES_CTRL_INT_CLR_KEY_ST_RD_ERR;
 
   nvic_interrupt_disable(NVIC_INT_AES);
-  crypto_register_process_notification(NULL);
+  cc2538_crypto_register_process_notification(NULL);
 
   /* Disable the master control / DMA clock */
   REG(AES_CTRL_ALG_SEL) = 0x00000000;
 
   if(aes_ctrl_int_stat & AES_CTRL_INT_STAT_DMA_BUS_ERR) {
-    return CRYPTO_DMA_BUS_ERROR;
+    return CC2538_CRYPTO_DMA_BUS_ERROR;
   }
   if(aes_ctrl_int_stat & AES_CTRL_INT_STAT_KEY_ST_WR_ERR) {
     return AES_KEYSTORE_WRITE_ERROR;
@@ -224,20 +225,21 @@ ccm_auth_encrypt_get_result(void *mic, uint8_t mic_len)
   /* Copy tag to MIC */
   rom_util_memcpy(mic, tag, mic_len);
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
-                       const void *adata, uint16_t adata_len, void *cdata,
-                       uint16_t cdata_len, uint8_t mic_len,
-                       struct process *process)
+cc2538_ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area,
+                              const void *nonce,
+                              const void *adata, uint16_t adata_len,
+                              void *cdata, uint16_t cdata_len, uint8_t mic_len,
+                              struct process *process)
 {
   uint16_t pdata_len = cdata_len - mic_len;
   uint32_t iv[4];
 
   if(REG(AES_CTRL_ALG_SEL) != 0x00000000) {
-    return CRYPTO_RESOURCE_IN_USE;
+    return CC2538_CRYPTO_RESOURCE_IN_USE;
   }
 
   /* Workaround for AES registers not retained after PM2 */
@@ -311,7 +313,7 @@ ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
       REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_DMA_BUS_ERR;
       /* Disable the master control / DMA clock */
       REG(AES_CTRL_ALG_SEL) = 0x00000000;
-      return CRYPTO_DMA_BUS_ERROR;
+      return CC2538_CRYPTO_DMA_BUS_ERROR;
     }
   }
 
@@ -320,7 +322,7 @@ ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
                           AES_CTRL_INT_CLR_RESULT_AV;
 
   if(process != NULL) {
-    crypto_register_process_notification(process);
+    cc2538_crypto_register_process_notification(process);
     nvic_interrupt_unpend(NVIC_INT_AES);
     nvic_interrupt_enable(NVIC_INT_AES);
   }
@@ -345,18 +347,18 @@ ccm_auth_decrypt_start(uint8_t len_len, uint8_t key_area, const void *nonce,
     REG(AES_DMAC_CH1_DMALENGTH) = pdata_len;
   }
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_decrypt_check_status(void)
+cc2538_ccm_auth_decrypt_check_status(void)
 {
   /* Check if result is available or some error has occured */
-  return ccm_auth_encrypt_check_status();
+  return cc2538_ccm_auth_encrypt_check_status();
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
-ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
+cc2538_ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
                             void *mic, uint8_t mic_len)
 {
   uint32_t aes_ctrl_int_stat;
@@ -370,13 +372,13 @@ ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
                           AES_CTRL_INT_CLR_KEY_ST_RD_ERR;
 
   nvic_interrupt_disable(NVIC_INT_AES);
-  crypto_register_process_notification(NULL);
+  cc2538_crypto_register_process_notification(NULL);
 
   /* Disable the master control / DMA clock */
   REG(AES_CTRL_ALG_SEL) = 0x00000000;
 
   if(aes_ctrl_int_stat & AES_CTRL_INT_STAT_DMA_BUS_ERR) {
-    return CRYPTO_DMA_BUS_ERROR;
+    return CC2538_CRYPTO_DMA_BUS_ERROR;
   }
   if(aes_ctrl_int_stat & AES_CTRL_INT_STAT_KEY_ST_WR_ERR) {
     return AES_KEYSTORE_WRITE_ERROR;
@@ -401,13 +403,13 @@ ccm_auth_decrypt_get_result(const void *cdata, uint16_t cdata_len,
 
   /* Check MIC */
   if(rom_util_memcmp(tag, &((const uint8_t *)cdata)[pdata_len], mic_len)) {
-    return CCM_AUTHENTICATION_FAILED;
+    return CC2538_CCM_AUTHENTICATION_FAILED;
   }
 
   /* Copy tag to MIC */
   rom_util_memcpy(mic, tag, mic_len);
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 
 /** @} */

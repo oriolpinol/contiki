@@ -116,7 +116,7 @@ new_hash(sha256_state_t *state, const void *data, void *hash)
     REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_DMA_BUS_ERR;
     /* Disable master control / DMA clock */
     REG(AES_CTRL_ALG_SEL) = 0x00000000;
-    return CRYPTO_DMA_BUS_ERROR;
+    return CC2538_CRYPTO_DMA_BUS_ERROR;
   }
 
   /* Clear the interrupt */
@@ -127,7 +127,7 @@ new_hash(sha256_state_t *state, const void *data, void *hash)
   /* Clear mode */
   REG(AES_AES_CTRL) = 0x00000000;
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 /** \brief Resumes an already started hash session in hardware
@@ -198,7 +198,7 @@ resume_hash(sha256_state_t *state, const void *data, void *hash)
     REG(AES_CTRL_INT_CLR) = AES_CTRL_INT_CLR_DMA_BUS_ERR;
     /* Disable master control / DMA clock */
     REG(AES_CTRL_ALG_SEL) = 0x00000000;
-    return CRYPTO_DMA_BUS_ERROR;
+    return CC2538_CRYPTO_DMA_BUS_ERROR;
   }
 
   /* Read digest */
@@ -222,21 +222,21 @@ resume_hash(sha256_state_t *state, const void *data, void *hash)
   /* Clear mode */
   REG(AES_AES_CTRL) = 0x00000000;
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
 sha256_init(sha256_state_t *state)
 {
   if(state == NULL) {
-    return CRYPTO_NULL_ERROR;
+    return CC2538_CRYPTO_NULL_ERROR;
   }
 
   state->curlen = 0;
   state->length = 0;
   state->new_digest = true;
   state->final_digest = false;
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
@@ -246,22 +246,22 @@ sha256_process(sha256_state_t *state, const void *data, uint32_t len)
   uint8_t ret;
 
   if(state == NULL || data == NULL) {
-    return CRYPTO_NULL_ERROR;
+    return CC2538_CRYPTO_NULL_ERROR;
   }
 
   if(state->curlen > sizeof(state->buf)) {
-    return CRYPTO_INVALID_PARAM;
+    return CC2538_CRYPTO_INVALID_PARAM;
   }
 
   if(REG(AES_CTRL_ALG_SEL) != 0x00000000) {
-    return CRYPTO_RESOURCE_IN_USE;
+    return CC2538_CRYPTO_RESOURCE_IN_USE;
   }
 
   if(len > 0 && state->new_digest) {
     if(state->curlen == 0 && len > BLOCK_SIZE) {
       rom_util_memcpy(state->buf, data, BLOCK_SIZE);
       ret = new_hash(state, state->buf, state->state);
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         return ret;
       }
       state->new_digest = false;
@@ -276,7 +276,7 @@ sha256_process(sha256_state_t *state, const void *data, uint32_t len)
       len -= n;
       if(state->curlen == BLOCK_SIZE && len > 0) {
         ret = new_hash(state, state->buf, state->state);
-        if(ret != CRYPTO_SUCCESS) {
+        if(ret != CC2538_CRYPTO_SUCCESS) {
           return ret;
         }
         state->new_digest = false;
@@ -290,7 +290,7 @@ sha256_process(sha256_state_t *state, const void *data, uint32_t len)
     if(state->curlen == 0 && len > BLOCK_SIZE) {
       rom_util_memcpy(state->buf, data, BLOCK_SIZE);
       ret = resume_hash(state, state->buf, state->state);
-      if(ret != CRYPTO_SUCCESS) {
+      if(ret != CC2538_CRYPTO_SUCCESS) {
         return ret;
       }
       state->length += BLOCK_SIZE << 3;
@@ -304,7 +304,7 @@ sha256_process(sha256_state_t *state, const void *data, uint32_t len)
       len -= n;
       if(state->curlen == BLOCK_SIZE && len > 0) {
         ret = resume_hash(state, state->buf, state->state);
-        if(ret != CRYPTO_SUCCESS) {
+        if(ret != CC2538_CRYPTO_SUCCESS) {
           return ret;
         }
         state->length += BLOCK_SIZE << 3;
@@ -313,7 +313,7 @@ sha256_process(sha256_state_t *state, const void *data, uint32_t len)
     }
   }
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t
@@ -322,15 +322,15 @@ sha256_done(sha256_state_t *state, void *hash)
   uint8_t ret;
 
   if(state == NULL || hash == NULL) {
-    return CRYPTO_NULL_ERROR;
+    return CC2538_CRYPTO_NULL_ERROR;
   }
 
   if(state->curlen > sizeof(state->buf)) {
-    return CRYPTO_INVALID_PARAM;
+    return CC2538_CRYPTO_INVALID_PARAM;
   }
 
   if(REG(AES_CTRL_ALG_SEL) != 0x00000000) {
-    return CRYPTO_RESOURCE_IN_USE;
+    return CC2538_CRYPTO_RESOURCE_IN_USE;
   }
 
   /* Increase the length of the message */
@@ -338,19 +338,19 @@ sha256_done(sha256_state_t *state, void *hash)
   state->final_digest = true;
   if(state->new_digest) {
     ret = new_hash(state, state->buf, hash);
-    if(ret != CRYPTO_SUCCESS) {
+    if(ret != CC2538_CRYPTO_SUCCESS) {
       return ret;
     }
   } else {
     ret = resume_hash(state, state->buf, hash);
-    if(ret != CRYPTO_SUCCESS) {
+    if(ret != CC2538_CRYPTO_SUCCESS) {
       return ret;
     }
   }
   state->new_digest = false;
   state->final_digest = false;
 
-  return CRYPTO_SUCCESS;
+  return CC2538_CRYPTO_SUCCESS;
 }
 
 /** @} */
