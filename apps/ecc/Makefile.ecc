@@ -1,0 +1,6 @@
+CFLAGS += -DJACOBIAN_COORDINATES
+
+CFLAGS += -DWORDS_32_BITS 
+CFLAGS += -DNUMWORDS=8
+
+ecc_src = bigint.c sha224-256.c ecc.c
