@@ -72,11 +72,13 @@ cc2538_crypto_isr(void)
   ENERGEST_OFF(ENERGEST_TYPE_IRQ);
 }
 /*---------------------------------------------------------------------------*/
+#if LPM_CONF_ENABLE != 0
 static bool
 permit_pm1(void)
 {
   return REG(AES_CTRL_ALG_SEL) == 0;
 }
+#endif /* LPM_CONF_ENABLE != 0 */
 /*---------------------------------------------------------------------------*/
 void
 cc2538_crypto_init(void)
