@@ -43,7 +43,7 @@
 #include "contiki.h"
 #include "sys/cc.h"
 #include "dev/rom-util.h"
-#include "dev/aes.h"
+#include "dev/cc2538-aes.h"
 #include "dev/sha256.h"
 #include "reg.h"
 

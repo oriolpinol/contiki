@@ -49,7 +49,7 @@
 #define CC2538_CCM_H_
 
 #include "contiki.h"
-#include "dev/aes.h"
+#include "dev/cc2538-aes.h"
 
 #include <stdbool.h>
 #include <stdint.h>

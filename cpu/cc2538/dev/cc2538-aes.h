@@ -45,8 +45,8 @@
  * \file
  * Header file for the cc2538 AES driver
  */
-#ifndef AES_H_
-#define AES_H_
+#ifndef CC2538_AES_H_
+#define CC2538_AES_H_
 
 #include "contiki.h"
 #include "dev/cc2538-crypto.h"
@@ -482,12 +482,12 @@
  * one passed for the previous calls causes the deletion of all previously
  * stored keys.
  */
-uint8_t aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
-                      uint8_t start_area);
+uint8_t cc2538_aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
+                             uint8_t start_area);
 
 /** @} */
 
-#endif /* AES_H_ */
+#endif /* CC2538_AES_H_ */
 
 /**
  * @}

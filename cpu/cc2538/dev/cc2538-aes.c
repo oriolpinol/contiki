@@ -42,14 +42,14 @@
  */
 #include "contiki.h"
 #include "dev/rom-util.h"
-#include "dev/aes.h"
+#include "dev/cc2538-aes.h"
 #include "reg.h"
 
 #include <stdint.h>
 /*---------------------------------------------------------------------------*/
 uint8_t
-aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
-              uint8_t start_area)
+cc2538_aes_load_keys(const void *keys, uint8_t key_size, uint8_t count,
+                     uint8_t start_area)
 {
   uint32_t aes_key_store_size;
   uint32_t areas;

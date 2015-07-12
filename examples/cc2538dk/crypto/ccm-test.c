@@ -603,7 +603,7 @@ PROCESS_THREAD(ccm_test_process, ev, data)
       printf("-----------------------------------------\n"
              "Filling %d-bit key store...\n", 128 + (key_size_index << 6));
       time = RTIMER_NOW();
-      ret = aes_load_keys(keys[key_size_index].keys,
+      ret = cc2538_aes_load_keys(keys[key_size_index].keys,
               keys[key_size_index].key_size, keys[key_size_index].count, 0);
       time = RTIMER_NOW() - time;
       printf("aes_load_keys(): %s, %lu us\n", str_res[ret],

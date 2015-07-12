@@ -40,7 +40,7 @@
 #include "dev/sys-ctrl.h"
 #include "dev/nvic.h"
 #include "dev/cc2538-crypto.h"
-#include "dev/aes.h"
+#include "dev/cc2538-aes.h"
 #include "reg.h"
 #include "lpm.h"
 
