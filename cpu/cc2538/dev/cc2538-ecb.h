@@ -1,5 +1,15 @@
 /*
+ * Original file:
+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+ * All rights reserved.
+ *
+ * Port to Contiki:
  * Copyright (c) 2013, ADVANSEE - http://www.advansee.com/
+ * All rights reserved.
+ *
+ * Modified to implement only AES-ECB mode.
+ * Copyright (c) 2015, Yanzi Networks AB
+ * Oriol Piñol Piñol <oriol@yanzi.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,62 +39,56 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * \addtogroup cc2538
+ * \addtogroup cc2538-crypto
  * @{
  *
- * \defgroup cc2538-crypto cc2538 AES/SHA cryptoprocessor
+ * \defgroup cc2538-ccm cc2538 AES-ECB
  *
- * Driver for the cc2538 AES/SHA cryptoprocessor
+ * Driver for the cc2538 AES-ECB mode of the security core
  * @{
  *
  * \file
- * Header file for the cc2538 AES/SHA cryptoprocessor driver
+ * Header file for the cc2538 AES-ECB driver
  */
-#ifndef CC2538_CRYPTO_H_
-#define CC2538_CRYPTO_H_
+#ifndef ECB_H_
+#define ECB_H_
 
 #include "contiki.h"
-#include "lib/aes-128.h"
+#include "dev/cc2538-crypto.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 /*---------------------------------------------------------------------------*/
-/** \name Crypto drivers return codes
- * @{
- */
-#define CC2538_CRYPTO_SUCCESS                0
-#define CC2538_CRYPTO_INVALID_PARAM          1
-#define CC2538_CRYPTO_NULL_ERROR             2
-#define CC2538_CRYPTO_RESOURCE_IN_USE        3
-#define CC2538_CRYPTO_DMA_BUS_ERROR          4
-/** @} */
-/*---------------------------------------------------------------------------*/
-/** \name Crypto functions
+/** \name AES-ECB functions
  * @{
  */
 
-/** \brief Enables and resets the AES/SHA cryptoprocessor
+/** \brief Starts the ECB authentication and encryption operation
+ * \param len_len Number of octets in length field (2, 4 or 8)
+ * \param key_area Area in Key RAM where the key is stored (0 to 7)
+ * \param pdata Pointer to message to authenticate and encrypt, or \c NULL
+ * \param pdata_len Length of message to authenticate and encrypt in octets, or \c 0
+ * \param process Process to be polled upon completion of the operation, or \c NULL
+ * \return \c CC2538_AES_SUCCESS if successful, or AES / ECB error code
  */
-void cc2538_crypto_init(void);
+uint8_t cc2538_ecb_encrypt_start(uint8_t key_area, void *pdata,
+                               uint16_t pdata_len, struct process *process);
 
-/** \brief Enables the AES/SHA cryptoprocessor
+/** \brief Checks the status of the ECB authentication and encryption operation
+ * \retval false Result not yet available, and no error occurred
+ * \retval true Result available, or error occurred
  */
-void cc2538_crypto_enable(void);
+uint8_t cc2538_ecb_encrypt_check_status(void);
 
-/** \brief Disables the AES/SHA cryptoprocessor
- * \note Call this function to save power when the cryptoprocessor is unused.
+/** \brief Gets the result of the ECB authentication and encryption operation
+ * \return \c CC2538_AES_SUCCESS if successful, or AES / ECB error code
+ * \note This function must be called only after \c cc2538_ecb_encrypt_start().
  */
-void cc2538_crypto_disable(void);
-
-/** \brief Registers a process to be notified of the completion of a crypto
- * operation
- * \param p Process to be polled upon IRQ
- * \note This function is only supposed to be called by the crypto drivers.
- */
-void cc2538_crypto_register_process_notification(struct process *p);
+uint8_t cc2538_ecb_encrypt_get_result(void);
 
 /** @} */
 
-extern const struct aes_128_driver cc2538_aes_128_driver;
-
-#endif /* CC2538_CRYPTO_H_ */
+#endif /* ECB_H_ */
 
 /**
  * @}

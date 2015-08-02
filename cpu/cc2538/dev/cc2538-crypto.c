@@ -41,6 +41,7 @@
 #include "dev/nvic.h"
 #include "dev/cc2538-crypto.h"
 #include "dev/cc2538-aes.h"
+#include "dev/cc2538-ecb.h"
 #include "reg.h"
 #include "lpm.h"
 
@@ -118,5 +119,28 @@ cc2538_crypto_register_process_notification(struct process *p)
 {
   notification_process = p;
 }
+
+/*---------------------------------------------------------------------------*/
+static void
+set_key(const uint8_t *key)
+{
+  cc2538_crypto_init();
+  cc2538_aes_load_keys(key, AES_KEY_STORE_SIZE_KEY_SIZE_128, 1, 0);
+}
+/*---------------------------------------------------------------------------*/
+static void
+encrypt(uint8_t *plaintext_and_result)
+{
+  cc2538_ecb_encrypt_start(0, plaintext_and_result, 16, NULL);
+  /* Wait for operation to complete */
+  while(!cc2538_ecb_encrypt_check_status());
+  /* Finish operation and clean-up */
+  cc2538_ecb_encrypt_get_result();
+}
+/*---------------------------------------------------------------------------*/
+const struct aes_128_driver cc2538_aes_128_driver = {
+  set_key,
+  encrypt
+};
 
 /** @} */
